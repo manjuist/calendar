@@ -41,9 +41,19 @@ function getMonthAllDays(year:number, month:number) {
   return daysMap[month];
 }
 
+const wrapper = document.querySelector('#calendar');
+
 function insertElement(ele:string):void{
-  document.body.innerHTML = ele;
+  if (wrapper) {
+    wrapper.innerHTML = ele;
+  }
 }
+
+const weeksMap = ['日', '一', '二', '三', '四', '五', '六'];
+
+// function getWeek({ year, month, day }) {
+// return weeksMap[new Date(year, month, day).getDay()];
+// }
 
 function showCalendar(
   year:number,
@@ -52,30 +62,52 @@ function showCalendar(
   const firstDayWeek = getMonthFirstDayWeek(year, month);
   const allDays = getMonthAllDays(year, month);
   let calendarStr = '';
-  for (let i = 1; i < firstDayWeek; i += 1) {
-    calendarStr += `<span>${i}<span>`;
+  for (let i = 1; i < allDays; i += 1) {
+    if (i < firstDayWeek) {
+      calendarStr += '<td class="calendar-cell"></td>';
+    }
+    calendarStr += `<td class="calendar-cell">${i}</td>`;
+    if (i % 7 === 0) {
+      calendarStr += '</tr><tr>';
+    }
   }
-  for (let i = firstDayWeek; i < allDays; i += 1) {
-    calendarStr += `<span>${i}<span>`;
-  }
+  calendarStr = `<table>
+    <tr>${weeksMap.reduce(
+    (pre, cur, ind) => (ind > 1
+      ? `${pre}<td>${cur}</td>`
+      : `<td>${pre}</td><td>${cur}</td>`),
+  )}</tr>
+    <tr>${calendarStr}</tr>
+  </table>`;
   insertElement(calendarStr);
 }
 
-function next():void{
-}
-
-function prev():void{
+function getCurrentDate() {
+  const todayDate = new Date();
+  const currentYear = todayDate.getFullYear();
+  const currentMonth = todayDate.getMonth();
+  const currentDate = todayDate.getDate();
+  const currentTime = todayDate.getTime();
+  return {
+    currentYear,
+    currentMonth,
+    currentDate,
+    currentTime,
+  };
 }
 
 function init():void{
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
-  showCalendar(currentYear, currentMonth);
-}
-
-function updateCalendar(year:number, month:number):void{
-  showCalendar(year, month);
+  showCalendar(currentYear, currentMonth + 1);
+  document
+    .addEventListener('click', (e: MouseEvent) => {
+      const { target } = e;
+      if (target) {
+        console.log(target, (target as HTMLElement).textContent);
+      }
+    }, false);
 }
 
 init();
